@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, ToggleLeft, Activity, Info, BarChart2 } from 'lucide-react';
 import Button from '../../components/ui/button';
+import useTheme from '../../hooks/useTheme';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export default function CoveragePage() {
   const [divisions, setDivisions] = useState([]);
@@ -13,6 +16,13 @@ export default function CoveragePage() {
 
   // Selected warehouse for flowcharts or coordinates
   const [selectedHub, setSelectedHub] = useState(null);
+
+  const { theme } = useTheme();
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const tileLayerRef = useRef(null);
+  const markersLayerRef = useRef(null);
+  const markersRef = useRef({});
 
   useEffect(() => {
     Promise.all([
@@ -32,6 +42,97 @@ export default function CoveragePage() {
         setLoading(false);
       });
   }, []);
+
+  // Initialize Leaflet map
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const map = L.map(mapRef.current, {
+      zoomControl: false
+    }).setView([23.8103, 90.4125], 7);
+
+    mapInstanceRef.current = map;
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    markersLayerRef.current = L.layerGroup().addTo(map);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Update theme tile layer
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    if (tileLayerRef.current) {
+      mapInstanceRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    const url = theme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    tileLayerRef.current = L.tileLayer(url, {
+      attribution: '&copy; CARTO'
+    }).addTo(mapInstanceRef.current);
+  }, [theme]);
+
+  // Render markers when warehouses load
+  useEffect(() => {
+    if (!mapInstanceRef.current || warehouses.length === 0) return;
+
+    markersLayerRef.current.clearLayers();
+    markersRef.current = {};
+
+    const customMarkerIcon = new L.DivIcon({
+      html: `<div class="relative w-8 h-8 flex items-center justify-center animate-pulse">
+               <div class="absolute w-6 h-6 bg-primary/20 border border-primary/40 rounded-full animate-ping"></div>
+               <div class="w-3.5 h-3.5 bg-primary border-2 border-white rounded-full shadow-glow"></div>
+             </div>`,
+      className: 'custom-div-icon',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -10]
+    });
+
+    warehouses.forEach(w => {
+      const popupContent = `
+        <div class="p-2 text-left min-w-[180px] font-sans">
+          <h4 class="font-extrabold text-sm text-neutral-900">${w.district} Hub</h4>
+          <p class="text-[10px] text-neutral-400 font-bold uppercase mt-0.5">${w.region} Region</p>
+          <p class="text-[11px] text-neutral-600 mt-1.5 font-semibold">Covered Area:</p>
+          <p class="text-[10px] text-neutral-500">${w.covered_area.join(', ')}</p>
+        </div>
+      `;
+
+      const marker = L.marker([w.latitude, w.longitude], { icon: customMarkerIcon })
+        .bindPopup(popupContent);
+
+      markersLayerRef.current.addLayer(marker);
+      markersRef.current[w.district.toLowerCase()] = marker;
+    });
+
+    setTimeout(() => {
+      mapInstanceRef.current.invalidateSize();
+    }, 100);
+  }, [warehouses]);
+
+  // Center & trigger popup when selectedHub changes
+  useEffect(() => {
+    if (!mapInstanceRef.current || !selectedHub) return;
+
+    mapInstanceRef.current.flyTo([selectedHub.latitude, selectedHub.longitude], 10, {
+      duration: 1.2
+    });
+
+    const marker = markersRef.current[selectedHub.district.toLowerCase()];
+    if (marker) {
+      setTimeout(() => {
+        marker.openPopup();
+      }, 1300);
+    }
+  }, [selectedHub]);
 
   const filteredHubs = warehouses.filter(w => {
     const matchesDiv = selectedDiv === 'All' || w.region.toLowerCase() === selectedDiv.toLowerCase();
@@ -140,22 +241,9 @@ export default function CoveragePage() {
                 </span>
               </div>
 
-              {/* Warehouse graphical coordinates representation */}
-              <div className="flex-1 relative border border-dashed border-borderColor-light dark:border-borderColor-dark rounded-xl bg-bg-light dark:bg-zinc-950/20 overflow-hidden flex items-center justify-center p-6 min-h-[250px]">
-                <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#27272a_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40" />
-
-                {/* Target radar pulses */}
-                <div className="relative w-20 h-20 rounded-full border border-primary/20 bg-primary/5 flex items-center justify-center animate-pulse">
-                  <div className="w-10 h-10 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-full bg-primary" />
-                  </div>
-                </div>
-
-                {/* Info Overlay */}
-                <div className="absolute bottom-4 left-4 p-3.5 rounded-lg border border-borderColor-light/60 dark:border-borderColor-dark/60 bg-white/95 dark:bg-zinc-900/95 shadow-soft max-w-xs text-left space-y-1 glass-panel">
-                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Covered Area Subzones</p>
-                  <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold">{selectedHub.covered_area.join(', ')}</p>
-                </div>
+              {/* Interactive map */}
+              <div className="flex-1 rounded-xl overflow-hidden min-h-[280px] border border-borderColor-light dark:border-borderColor-dark relative z-0">
+                <div ref={mapRef} className="h-full w-full" />
               </div>
 
               {/* Additional Warehouse capacity simulation */}

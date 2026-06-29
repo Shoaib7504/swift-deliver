@@ -1,51 +1,42 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Shield, Bike } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/auth-context';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [tier, setTier] = useState('Standard');
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const validate = () => {
-    const tempErrors = {};
-    if (!name) {
-      tempErrors.name = 'Full name is required';
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      tier: 'Standard'
     }
-    if (!email) {
-      tempErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      tempErrors.email = 'Email address is invalid';
-    }
-    if (!password) {
-      tempErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      tempErrors.password = 'Password must be at least 6 characters';
-    }
-    if (password !== confirmPassword) {
-      tempErrors.confirmPassword = 'Passwords do not match';
-    }
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const nameValue = watch('name');
+  const emailValue = watch('email');
+  const passwordValue = watch('password');
+  const confirmPasswordValue = watch('confirmPassword');
 
+  const onSubmit = (data) => {
+    console.log("Register Form Data Submitted:", data);
     setIsLoading(true);
     // Simulate network delay
     setTimeout(() => {
-      const success = register(name, email, password, tier);
+      const success = registerUser(data.name, data.email, data.password, data.tier);
       setIsLoading(false);
       if (success) {
         navigate('/dashboard');
@@ -75,7 +66,7 @@ export default function RegisterPage() {
 
         {/* Register Form Card */}
         <div className="p-6 sm:p-8 rounded-3xl bg-card/60 dark:bg-zinc-900/60 backdrop-blur-md border border-borderColor-light dark:border-borderColor-dark shadow-xl text-left">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             
             <Input
               id="name"
@@ -83,9 +74,11 @@ export default function RegisterPage() {
               label="Full Name"
               placeholder="John Doe"
               icon={User}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              error={errors.name}
+              value={nameValue}
+              error={errors.name?.message}
+              {...register('name', {
+                required: 'Full name is required'
+              })}
             />
 
             <Input
@@ -94,9 +87,15 @@ export default function RegisterPage() {
               label="Email Address"
               placeholder="name@company.com"
               icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={errors.email}
+              value={emailValue}
+              error={errors.email?.message}
+              {...register('email', {
+                required: 'Email is required',
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: 'Invalid email address'
+                }
+              })}
             />
 
             <Input
@@ -105,9 +104,15 @@ export default function RegisterPage() {
               label="Password"
               placeholder="••••••••"
               icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={errors.password}
+              value={passwordValue}
+              error={errors.password?.message}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              })}
             />
 
             <Input
@@ -116,9 +121,12 @@ export default function RegisterPage() {
               label="Confirm Password"
               placeholder="••••••••"
               icon={Lock}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={errors.confirmPassword}
+              value={confirmPasswordValue}
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword', {
+                required: 'Please confirm your password',
+                validate: value => value === passwordValue || 'Passwords do not match'
+              })}
             />
 
             {/* Account Tier selector */}
@@ -131,9 +139,8 @@ export default function RegisterPage() {
                   <Shield size={18} />
                 </div>
                 <select
-                  value={tier}
-                  onChange={(e) => setTier(e.target.value)}
                   className="w-full pl-11 pr-4 py-3.5 rounded-lg text-sm bg-neutral-100/50 dark:bg-neutral-800/40 text-neutral-800 dark:text-neutral-200 border border-borderColor-light dark:border-borderColor-dark focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none cursor-pointer"
+                  {...register('tier')}
                 >
                   <option value="Starter">Starter (Pay as you go)</option>
                   <option value="Standard">Standard Merchant</option>

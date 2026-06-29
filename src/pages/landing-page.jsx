@@ -3,6 +3,7 @@ import { SiteFooter } from '../components/site-footer';
 import Hero from '../components/landing/hero';
 import LogoStrip from '../components/landing/logo-strip';
 import Services from '../components/landing/services';
+import Coverage from '../components/landing/coverage';
 import HowItWorks from '../components/landing/how-it-works';
 import Stats from '../components/landing/stats';
 import Testimonials from '../components/landing/testimonials';
@@ -18,6 +19,7 @@ export default function LandingPage() {
         <Hero />
         <LogoStrip />
         <Services />
+        <Coverage />
         <HowItWorks />
         <Stats />
         <Testimonials />
