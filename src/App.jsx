@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainLayout from './layouts/main-layout';
 import DashboardLayout from './layouts/dashboard-layout';
 import LandingPage from './pages/landing-page';
 import DashboardPage from './pages/dashboard-page';
@@ -8,9 +7,8 @@ import ShipmentsPage from './pages/dashboard/shipments-page';
 import CoveragePage from './pages/dashboard/coverage-page';
 import LoginPage from './pages/login-page';
 import RegisterPage from './pages/register-page';
-import { AuthProvider } from './context/auth-context';
+import AuthProvider from './context/AuthProvider';
 import { Toaster } from 'sonner';
-
 function App() {
   return (
     <AuthProvider>

@@ -1,6 +1,6 @@
 import { Search, Bell, LayoutGrid } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '../../context/auth-context';
+import useAuth from '../../hooks/UseAuth';
 
 export default function Topbar() {
   const { user } = useAuth();
@@ -14,6 +14,7 @@ export default function Topbar() {
       toast.info(`Searching for "${e.target.value}"...`);
     }
   };
+// console.log(user);
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-3xl border bg-card p-3 shadow-soft text-left">
@@ -41,11 +42,10 @@ export default function Topbar() {
         <LayoutGrid className="h-4 w-4" />
       </button>
       <div className="flex items-center gap-3 rounded-2xl border bg-card px-2 py-1.5 text-foreground">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-brand text-sm font-semibold text-white">
-          {user?.avatarInitials || 'A'}
-        </span>
+        <img src={user?.photoURL} className="grid h-8 w-8 place-items-center rounded-full bg-gradient-brand text-sm font-semibold text-white">
+        </img>
         <div className="pr-2 text-right text-xs leading-tight">
-          <p className="font-semibold">{user?.name || 'Alex Rivera'}</p>
+          <p className="font-semibold">{user?.displayName || 'Alex Rivera'}</p>
           <p className="text-muted-foreground">{user?.tier || 'Swift+'}</p>
         </div>
       </div>

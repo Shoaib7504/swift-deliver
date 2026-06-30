@@ -7,14 +7,15 @@ import QuickActions from '../components/dashboard/quick-actions';
 import RecentOrders from '../components/dashboard/recent-orders';
 import Sidecards from '../components/dashboard/sidecards';
 import { toast } from 'sonner';
-import { useAuth } from '../context/auth-context';
+import useAuth from '../hooks/UseAuth';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  
+
   const handleNewOrder = () => {
     toast.success("Starting new order booking form...");
   };
+// console.log(user?.displayName);
 
   return (
     <div className="min-h-screen bg-secondary/40 text-foreground transition-colors duration-300">
@@ -28,7 +29,8 @@ export default function DashboardPage() {
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground">
-                Good evening, {user?.name || 'Alex'} 👋
+                Good evening, {user?.displayName
+ || 'Alex'} 👋
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 You've saved <span className="font-semibold text-foreground">$42</span> this month with Swift+.

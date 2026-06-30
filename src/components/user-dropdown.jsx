@@ -11,7 +11,7 @@ import {
   Moon,
   ChevronDown
 } from 'lucide-react';
-import { useAuth } from '../context/auth-context';
+import useAuth from '../hooks/UseAuth';
 import useTheme from '../hooks/useTheme';
 import { toast } from 'sonner';
 
@@ -49,9 +49,8 @@ export default function UserDropdown() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 p-1.5 rounded-xl border border-borderColor-light/80 dark:border-borderColor-dark/80 hover:bg-neutral-50 dark:hover:bg-zinc-900 transition-all text-left focus:outline-none cursor-pointer"
       >
-        <div className="w-8 h-8 rounded-lg bg-gradient-brand text-white flex items-center justify-center font-bold text-sm shadow-sm">
-          {user.avatarInitials || 'US'}
-        </div>
+        <img src={user?.photoURL} className="w-8 h-8 rounded-lg bg-gradient-brand text-white flex items-center justify-center font-bold text-sm shadow-sm">
+        </img>
         <div className="hidden sm:block pr-1">
           <p className="text-xs font-semibold leading-tight text-neutral-800 dark:text-neutral-200">
             {user.name}
@@ -80,9 +79,8 @@ export default function UserDropdown() {
               {/* User Header Block */}
               <div className="px-3.5 py-3 border-b border-borderColor-light dark:border-borderColor-dark text-left bg-neutral-50/55 dark:bg-zinc-800/40 rounded-xl mb-2">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-brand text-white flex items-center justify-center font-bold text-base shadow-sm">
-                    {user.avatarInitials || 'US'}
-                  </div>
+                  <img src={user?.photoURL} className="w-10 h-10 rounded-xl bg-gradient-brand text-white flex items-center justify-center font-bold text-base shadow-sm">
+                  </img>
                   <div className="min-w-0 flex-1">
                     <h4 className="text-sm font-bold text-neutral-800 dark:text-neutral-200 leading-tight truncate">
                       {user.name}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Bike } from 'lucide-react';
-import { useAuth } from '../context/auth-context';
+import useAuth from '../hooks/UseAuth';
 import UserDropdown from './user-dropdown';
 import Button from './ui/button';
 
@@ -27,6 +27,7 @@ export function SiteHeader() {
             <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">How it Works</a>
             <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
+            <a href="#coverage" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Coverage</a>
           </nav>
         </div>
 

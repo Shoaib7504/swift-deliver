@@ -24,7 +24,8 @@ import useTheme from '../hooks/useTheme';
 import Button from '../components/ui/button';
 import Dialog from '../components/ui/dialog';
 import { Toaster, toast } from 'sonner';
-import { useAuth } from '../context/auth-context';
+import useAuth from '../hooks/UseAuth';
+
 
 export default function DashboardLayout({ children }) {
   const { theme, toggleTheme } = useTheme();
