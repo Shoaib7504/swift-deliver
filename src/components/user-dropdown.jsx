@@ -1,32 +1,37 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  HelpCircle, 
-  LogOut, 
-  Sparkles, 
-  Sun, 
+import {
+  LayoutDashboard,
+  
+  HelpCircle,
+  LogOut,
+  Sparkles,
+  Sun,
   Moon,
-  ChevronDown
+  ChevronDown,
+  Motorbike
 } from 'lucide-react';
 import useAuth from '../hooks/UseAuth';
 import useTheme from '../hooks/useTheme';
 import { toast } from 'sonner';
 
 export default function UserDropdown() {
-  const { user, logout } = useAuth();
+  const { user, logOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   if (!user) return null;
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsOpen(false);
-    logout();
-    navigate('/');
+    try {
+      await logOut();
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // Determine badge styling based on user tier
@@ -67,7 +72,7 @@ export default function UserDropdown() {
           <>
             {/* Popover overlay to close */}
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-            
+
             {/* Dropdown Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -111,13 +116,13 @@ export default function UserDropdown() {
 
                 <button
                   onClick={() => {
-                    toast.success("Account Settings will be loaded in production.");
+                    toast.success("Become a Rider will be loaded in production.");
                     setIsOpen(false);
                   }}
                   className="w-full text-left px-3 py-2 text-xs font-medium rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-zinc-800 flex items-center space-x-2.5 transition-colors cursor-pointer"
                 >
-                  <Settings size={14} className="text-neutral-400 dark:text-neutral-500" />
-                  <span>Account Settings</span>
+                  <Motorbike size={14} className="text-neutral-400 dark:text-neutral-500" />
+                  <span>Become a Rider</span>
                 </button>
 
                 {/* Inline Theme Switcher */}

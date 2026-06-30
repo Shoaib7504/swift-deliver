@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Shield, Bike } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Shield, Bike, Image, EyeOff, Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
 import useAuth from '../hooks/UseAuth';
+import axios from 'axios';
 
 export default function RegisterPage() {
-  const { user,registerUser, signInWithGoogle } = useAuth()
+  const {  registerUser, signInWithGoogle, updateUserProfile } = useAuth()
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -34,18 +35,43 @@ export default function RegisterPage() {
   const passwordValue = watch('password');
   const confirmPasswordValue = watch('confirmPassword');
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    try {
-      await registerUser(data.email, data.password);
-      toast.success("Account created successfully!");
-      navigate('/dashboard');
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
+const onSubmit = async (data) => {
+  setIsLoading(true);
+  const profileImg = data.image[0];
+
+  try {
+    // 1. Upload image first
+    const formData = new FormData();
+    formData.append('image', profileImg);
+
+    const res = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGEBB_API_KEY}`,
+      formData
+    );
+
+    if (!res.data?.success) {
+      throw new Error('Image upload failed. Please try again.');
     }
-  };
+
+    const photoURL = res.data.data.url;
+
+    // 2. Create the user
+    await registerUser(data.email, data.password);
+
+    // 3. Update profile with name + photo
+    await updateUserProfile(data.name, photoURL);
+
+    toast.success('Account created successfully!');
+    navigate('/dashboard');
+  } catch (err) {
+    console.error(err);
+    toast.error(
+      err.response?.data?.error?.message || err.message || 'Something went wrong'
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -83,6 +109,17 @@ export default function RegisterPage() {
         {/* Register Form Card */}
         <div className="p-6 sm:p-8 rounded-3xl bg-card/60 dark:bg-zinc-900/60 backdrop-blur-md border border-borderColor-light dark:border-borderColor-dark shadow-xl text-left">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              id="image"
+              type="file"
+              label="Upload Image"
+              icon={Image}
+              accept="image/*"
+              error={errors.image?.message}
+              {...register('image', {
+                required: 'Please upload an image',
+              })}
+            />
 
             <Input
               id="name"
@@ -90,10 +127,9 @@ export default function RegisterPage() {
               label="Full Name"
               placeholder="John Doe"
               icon={User}
-              value={nameValue}
               error={errors.name?.message}
               {...register('name', {
-                required: 'Full name is required'
+                required: 'Full name is required',
               })}
             />
 
@@ -103,47 +139,66 @@ export default function RegisterPage() {
               label="Email Address"
               placeholder="name@company.com"
               icon={Mail}
-              value={emailValue}
               error={errors.email?.message}
               {...register('email', {
                 required: 'Email is required',
                 pattern: {
                   value: /\S+@\S+\.\S+/,
-                  message: 'Invalid email address'
-                }
+                  message: 'Invalid email address',
+                },
               })}
             />
 
-            <Input
-              id="password"
-              type="password"
-              label="Password"
-              placeholder="••••••••"
-              icon={Lock}
-              value={passwordValue}
-              error={errors.password?.message}
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters'
-                }
-              })}
-            />
-
-            <Input
-              id="confirmPassword"
-              type="password"
-              label="Confirm Password"
-              placeholder="••••••••"
-              icon={Lock}
-              value={confirmPasswordValue}
-              error={errors.confirmPassword?.message}
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
-                validate: value => value === passwordValue || 'Passwords do not match'
-              })}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                placeholder="••••••••"
+                icon={Lock}
+                error={errors.password?.message}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[18px] flex items-center text-gray-500 hover:text-gray-700"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                placeholder="••••••••"
+                icon={Lock}
+                error={errors.password?.message}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[18px] flex items-center text-gray-500 hover:text-gray-700"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
 
             {/* Account Tier selector */}
             <div className="relative w-full mb-5">
