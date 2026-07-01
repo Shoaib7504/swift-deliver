@@ -28,6 +28,7 @@ export function SiteHeader() {
             <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
             <a href="#coverage" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Coverage</a>
+            <Link to="/dashboard/send-parcel" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Send Parcel</Link>
           </nav>
         </div>
 

@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const {  registerUser, signInWithGoogle, updateUserProfile } = useAuth()
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); 
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -61,6 +61,16 @@ const onSubmit = async (data) => {
     // 3. Update profile with name + photo
     await updateUserProfile(data.name, photoURL);
 
+    const userInfo = {
+      name: data.name,
+      email: data.email,
+      photoURL: photoURL,
+      tier: data.tier,
+      role:'user'
+    }
+
+    await axios.post('http://localhost:3000/users', userInfo)
+
     toast.success('Account created successfully!');
     navigate('/dashboard');
   } catch (err) {
@@ -73,18 +83,31 @@ const onSubmit = async (data) => {
   }
 };
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      toast.success("Signed up with Google!");
-      navigate('/dashboard');
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+ const handleGoogleSignIn = async () => {
+  setGoogleLoading(true);
+
+  try {
+    const result = await signInWithGoogle();
+    const loggedUser = result.user;
+
+    const userInfo = {
+      name: loggedUser.displayName,
+      email: loggedUser.email,
+      photoURL: loggedUser.photoURL,
+      tier: "Standard",
+      role: "user",
+    };
+
+    await axios.post("http://localhost:3000/users", userInfo);
+
+    toast.success("Signed up with Google!");
+    navigate("/dashboard");
+  } catch (err) {
+    toast.error(err.message);
+  } finally {
+    setGoogleLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-bg-light dark:bg-bg-dark text-neutral-800 dark:text-neutral-200 transition-colors duration-300">

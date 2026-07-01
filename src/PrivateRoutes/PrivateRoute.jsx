@@ -1,23 +1,35 @@
-import React from 'react'
-import useAuth from '../hooks/UseAuth'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
+import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import useAuth from "../hooks/UseAuth";
 
-export default function PrivateRoute({children}) {
-    const {user,loading} = useAuth()
-    const navigate = useNavigate()
-    if(loading)
-    {
-        return <div className="flex items-center justify-center h-screen">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-        </div>
+export default function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      toast.error("Please login to continue.");
     }
-    if(user)
-    {
-        toast.success("Welcome to your dashboard")
-        return children
-    }
-    toast.error("You are not authorized to access this page")
-    navigate('/login')
-    return null;
+  }, [loading, user]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Navigate
+        to="/login"
+        state={{ from: location }}
+        replace
+      />
+    );
+  }
+
+  return children;
 }
