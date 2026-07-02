@@ -54,6 +54,7 @@ export default function MyParcels() {
         },
 
     })
+    console.log(parcels);
 
 
     const handleDelete = async id => {
@@ -159,7 +160,7 @@ export default function MyParcels() {
                     </p>
                 </div>
                 <button
-                    onClick={() => navigate("/dashboard/add-parcel")}
+                    onClick={() => navigate("/dashboard/send-parcel")}
                     className="rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90"
                 >
                     Add a parcel
@@ -322,7 +323,7 @@ export default function MyParcels() {
                                             {parcel.status === "unpaid" && (
                                                 <button
                                                     onClick={() =>
-                                                        navigate(`/dashboard/pay/${parcel._id}`)
+                                                        navigate(`/dashboard/payment/${parcel._id}`)
                                                     }
                                                     title="Pay Now"
                                                     className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-green-600 transition-all hover:border-green-500 hover:bg-green-500 hover:text-white"

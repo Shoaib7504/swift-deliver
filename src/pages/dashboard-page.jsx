@@ -8,9 +8,22 @@ import RecentOrders from "../components/dashboard/recent-orders";
 import Sidecards from "../components/dashboard/sidecards";
 
 import useAuth from "../hooks/UseAuth";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 export default function DashboardHome() {
   const { user } = useAuth();
+  const axiosSecure=useAxiosSecure()
+   const { data: parcels, isLoading, isError, error: queryError, refetch } = useQuery({
+        queryKey: ['parcels', user?.email],
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/parcels?email=${user?.email}`)
+            return res.data
+        },
+
+    })
+    console.log(parcels);
+    
 
   return (
     <>

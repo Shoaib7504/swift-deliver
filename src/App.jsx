@@ -13,12 +13,15 @@ import DashboardPage from "./pages/dashboard-page";
 import ShipmentsPage from "./pages/dashboard/shipments-page";
 import CoveragePage from "./pages/dashboard/coverage-page";
 import SendParcel from "./pages/sendParcel";
+import Payment from "./pages/Payment";
 import PrivateRoute from "./PrivateRoutes/PrivateRoute";
 import MyParcels from "./pages/dashboard/MyParcels";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import ErrorPage from "./pages/dashboard/Error-Page";
 import ParcelDetailsPage from "./pages/ParcelDetais";
+import PaymentSuccess from "./pages/Payment-success";
+import PaymentCancel from "./pages/PaymentCancel";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ function App() {
               <Route path="send-parcel" element={<SendParcel />} />
               <Route path="my-parcels" element={<MyParcels />} />
               <Route path="parcel/:id" element={<ParcelDetailsPage />} />
+              <Route path="payment/:id" element={<Payment />} />
+              <Route path="payment-success" element={<PaymentSuccess />} />
+              <Route path="payment-cancel" element={<PaymentCancel />} />
             </Route>
 
             <Route path="*" element={

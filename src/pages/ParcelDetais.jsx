@@ -11,14 +11,14 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 
 // ── Status config
 const STATUS_CONFIG = {
-  unpaid:                   { label: "Unpaid",                 color: "text-warning",   bg: "bg-warning/10",   border: "border-warning/30",   step: 0 },
-  paid:                     { label: "Paid",                   color: "text-info",      bg: "bg-info/10",      border: "border-info/30",      step: 1 },
-  "ready-to-pickup":        { label: "Ready to pickup",        color: "text-brand",     bg: "bg-brand/10",     border: "border-brand/30",     step: 2 },
-  "in-transit":             { label: "In transit",             color: "text-brand-2",   bg: "bg-brand-2/10",   border: "border-brand-2/30",   step: 3 },
-  "reached-service-center": { label: "At service center",      color: "text-brand-3",   bg: "bg-brand-3/10",   border: "border-brand-3/30",   step: 4 },
-  shipped:                  { label: "Shipped",                color: "text-brand-4",   bg: "bg-brand-4/10",   border: "border-brand-4/30",   step: 5 },
-  "ready-for-delivery":     { label: "Ready for delivery",     color: "text-info",      bg: "bg-info/10",      border: "border-info/30",      step: 6 },
-  delivered:                { label: "Delivered",              color: "text-success",   bg: "bg-success/10",   border: "border-success/30",   step: 7 },
+  unpaid: { label: "Unpaid", color: "text-warning", bg: "bg-warning/10", border: "border-warning/30", step: 0 },
+  paid: { label: "Paid", color: "text-info", bg: "bg-info/10", border: "border-info/30", step: 1 },
+  "ready-to-pickup": { label: "Ready to pickup", color: "text-brand", bg: "bg-brand/10", border: "border-brand/30", step: 2 },
+  "in-transit": { label: "In transit", color: "text-brand-2", bg: "bg-brand-2/10", border: "border-brand-2/30", step: 3 },
+  "reached-service-center": { label: "At service center", color: "text-brand-3", bg: "bg-brand-3/10", border: "border-brand-3/30", step: 4 },
+  shipped: { label: "Shipped", color: "text-brand-4", bg: "bg-brand-4/10", border: "border-brand-4/30", step: 5 },
+  "ready-for-delivery": { label: "Ready for delivery", color: "text-info", bg: "bg-info/10", border: "border-info/30", step: 6 },
+  delivered: { label: "Delivered", color: "text-success", bg: "bg-success/10", border: "border-success/30", step: 7 },
 };
 
 const STATUS_ORDER = [
@@ -61,7 +61,7 @@ function Chip({ icon: Icon, label, value }) {
       </span>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="mt-0.5 text-sm font-semibold text-foreground">{value}</p>
+        <p className="mt-0.5 text-sm font-semibold text-foreground break-all">{value}</p>
       </div>
     </div>
   );
@@ -79,12 +79,12 @@ function PartyCard({ role, name, contact, region, serviceCenter, address, instru
       </div>
       <div className="space-y-3">
         {[
-          { icon: User,      label: "Name",           val: name },
-          { icon: Phone,     label: "Contact",        val: contact },
-          { icon: MapPin,    label: "Region",         val: region },
-          { icon: Box,       label: "Service center", val: serviceCenter },
-          { icon: MapPin,    label: "Address",        val: address },
-          { icon: FileText,  label: instructionLabel, val: instruction },
+          { icon: User, label: "Name", val: name },
+          { icon: Phone, label: "Contact", val: contact },
+          { icon: MapPin, label: "Region", val: region },
+          { icon: Box, label: "Service center", val: serviceCenter },
+          { icon: MapPin, label: "Address", val: address },
+          { icon: FileText, label: instructionLabel, val: instruction },
         ].map(({ icon: Icon, label, val }) =>
           val ? (
             <div key={label} className="flex items-start gap-3">
@@ -154,27 +154,27 @@ function StatusPipeline({ status, isSameCity }) {
 
 // ── Main page 
 export default function ParcelDetailsPage() {
-    const {user}=useAuth()
+  const { user } = useAuth()
   const { id } = useParams();
-  const axiosSecure=useAxiosSecure()
+  const axiosSecure = useAxiosSecure()
   const navigate = useNavigate();
 
-  const {data:parcel,isLoading,error,refetch}=useQuery({
-    queryKey:["parcel",id],
-    queryFn:async ()=>{
-        const res=await axiosSecure.get(`/parcels/${id}`)
-        return res.data
+  const { data: parcel, isLoading, error, refetch } = useQuery({
+    queryKey: ["parcel", id],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/parcels/${id}`)
+      return res.data
     }
   })
 
-//   useEffect(() => {
-//     if (!id) return;
-//     fetch(`${import.meta.env.VITE_API_URL}/parcels/${id}`)
-//       .then((r) => { if (!r.ok) throw new Error("Not found"); return r.json(); })
-//       .then(setParcel)
-//       .catch(() => setError("Parcel not found or something went wrong."))
-//       .finally(() => setLoading(false));
-//   }, [id]);
+  //   useEffect(() => {
+  //     if (!id) return;
+  //     fetch(`${import.meta.env.VITE_API_URL}/parcels/${id}`)
+  //       .then((r) => { if (!r.ok) throw new Error("Not found"); return r.json(); })
+  //       .then(setParcel)
+  //       .catch(() => setError("Parcel not found or something went wrong."))
+  //       .finally(() => setLoading(false));
+  //   }, [id]);
 
   // ── Loading 
   if (isLoading) return (
@@ -266,7 +266,10 @@ export default function ParcelDetailsPage() {
               {tracking_no && (
                 <span className="flex items-center gap-1.5">
                   <Hash size={12} />
-                  Tracking — <strong className="text-foreground">{tracking_no}</strong>
+                  Transaction ID —{" "}
+                  <strong className="text-foreground break-all">
+                    {tracking_no}
+                  </strong>
                 </span>
               )}
               <span className="flex items-center gap-1.5">
@@ -327,11 +330,11 @@ export default function ParcelDetailsPage() {
       </div>
 
       {/* ── Info chips  */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Chip icon={Package}  label="Type"         value={type === "document" ? "Document" : "Non-document"} />
-        <Chip icon={Box}      label="Weight"       value={weight ? `${weight} kg` : "N/A"} />
-        <Chip icon={Calendar} label="Created"      value={fmtDateShort(createdAt)} />
-        <Chip icon={Hash}     label="Tracking no." value={tracking_no ?? "—"} />
+      <div className="mb-6 grid grid-cols-2 gap- sm:grid-cols-4 gap-1.5">
+        <Chip icon={Package} label="Type" value={type === "document" ? "Document" : "Non-document"} />
+        <Chip icon={Box} label="Weight" value={weight ? `${weight} kg` : "N/A"} />
+        <Chip icon={Calendar} label="Created" value={fmtDateShort(createdAt)} />
+        <Chip icon={Hash} label="Tracking no." value={tracking_no ?? "—"} />
       </div>
 
       {/* ── Sender / Receiver  */}
